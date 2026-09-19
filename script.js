@@ -31,11 +31,12 @@ const defaults = {
 const STORAGE_KEY = "fitflowProState";
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const $ = (id) => document.getElementById(id);
-
+let deferredPrompt = null;
 let state = loadState();
 
 const toast = (message) => {
   const el = $("toast");
+  if (!el) return;
   el.textContent = message;
   el.classList.add("show");
   clearTimeout(window.toastTimer);
@@ -64,6 +65,33 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function initServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+}
+
+function setupInstallPrompt() {
+  const installBtn = $("installBtn");
+  if (!installBtn) return;
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.hidden = false;
+  });
+
+  installBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.hidden = true;
+  });
+}
+
 function bindEvents() {
   $("profileForm").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -88,14 +116,22 @@ function bindEvents() {
     else addWorkout();
   };
 
-  $("addHabitBtn").onclick = () => {
-    const text = window.prompt("What habit would you like to track?", "Read for 10 minutes");
-    if (!text) return;
-    state.habits.push({ text, checked: false });
-    saveState();
-    renderHabits();
-    toast("Habit added");
+  $("fabBtn").onclick = () => {
+    const addMealMode = window.confirm("Quick add: add meal? Cancel = workout");
+    if (addMealMode) addMeal();
+    else addWorkout();
   };
+
+  document.querySelectorAll("[data-quick-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.dataset.quickAction;
+      if (action === "meal") addMeal();
+      if (action === "workout") addWorkout();
+      if (action === "habit") addHabit();
+    });
+  });
+
+  $("addHabitBtn").onclick = addHabit;
 
   $("themeBtn").onclick = () => {
     state.theme = state.theme === "light" ? "dark" : "light";
@@ -140,6 +176,7 @@ function render() {
   renderHabits();
   renderChart();
   renderInsights();
+  document.body.classList.toggle("light", state.theme === "light");
 }
 
 function updateDate() {
@@ -228,6 +265,7 @@ function renderMeals() {
       saveState();
       renderMeals();
       renderInsights();
+      renderSummary();
       toast("Meal removed");
     });
 
@@ -314,10 +352,10 @@ function renderInsights() {
   $("consistencyScore").textContent = `${consistency}%`;
 
   const chart = $("weightChart");
-  const max = Math.max(...state.weightLog, ...[state.profile.weight]);
-  const min = Math.min(...state.weightLog, ...[state.profile.weight]);
-  chart.innerHTML = state.weightLog
-    .slice(-7)
+  const data = [...state.weightLog, state.profile.weight];
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  chart.innerHTML = data.slice(-7)
     .map((value) => {
       const height = Math.max(18, ((value - min) / (max - min || 1)) * 100 + 20);
       return `<div class="weight-bar" style="height:${height}%"></div>`;
@@ -365,6 +403,7 @@ function addMeal() {
 
   saveState();
   renderMeals();
+  renderSummary();
   renderInsights();
   toast("Meal added ✦");
 }
@@ -390,10 +429,23 @@ function addWorkout() {
   toast("Workout added ✦");
 }
 
+function addHabit() {
+  const text = window.prompt("What habit would you like to track?", "Read for 10 minutes");
+  if (!text) return;
+  state.habits.push({ text, checked: false });
+  saveState();
+  renderHabits();
+  renderInsights();
+  renderChart();
+  toast("Habit added");
+}
+
 window.addEventListener("beforeunload", saveState);
 
 bindEvents();
 fillProfile();
 render();
 updateDate();
+initServiceWorker();
+setupInstallPrompt();
 document.body.classList.toggle("light", state.theme === "light");

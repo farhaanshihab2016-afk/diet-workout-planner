@@ -4,8 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#07131f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="FitFlow Pro — a complete wellness planner for meals, workouts, hydration, habits, and progress tracking." />
     <title>FitFlow Pro</title>
-    <meta name="description" content="Full diet and workout planner app with analytics, habit tracking, and progress metrics." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -25,7 +30,7 @@
           </div>
         </div>
 
-        <nav class="nav">
+        <nav class="nav" aria-label="Main navigation">
           <button class="nav-item active" data-target="overview"><span>⌂</span> Overview</button>
           <button class="nav-item" data-target="meal-panel"><span>▦</span> Meals</button>
           <button class="nav-item" data-target="workout-panel"><span>ϟ</span> Workouts</button>
@@ -36,7 +41,7 @@
           <span class="tip-icon">✦</span>
           <div>
             <strong>Small steps, big change</strong>
-            <p>Consistency compounding beats perfect intensity.</p>
+            <p>Consistency compounds faster than perfect intensity.</p>
           </div>
         </div>
 
@@ -135,6 +140,13 @@
             <h3 id="workoutTarget">125 min</h3>
             <span id="workoutStatus">Cardio + strength</span>
           </article>
+        </section>
+
+        <section class="mobile-actions">
+          <button class="mini-action" data-quick-action="meal">＋ Meal</button>
+          <button class="mini-action" data-quick-action="workout">＋ Workout</button>
+          <button class="mini-action" data-quick-action="habit">✓ Habit</button>
+          <button class="mini-action install" id="installBtn" hidden>Install app</button>
         </section>
 
         <section class="main-grid">
@@ -319,6 +331,7 @@
       </label>
     </template>
 
+    <button class="fab" id="fabBtn" aria-label="Add item">＋</button>
     <div id="toast" class="toast" role="status"></div>
 
     <script src="script.js"></script>

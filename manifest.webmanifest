@@ -1,0 +1,12 @@
+{
+  "name": "FitFlow Pro",
+  "short_name": "FitFlow",
+  "description": "Wellness planner for meals, workouts, habits, and progress tracking.",
+  "start_url": "/diet-workout-planner/",
+  "display": "standalone",
+  "background_color": "#07131f",
+  "theme_color": "#07131f",
+  "orientation": "portrait",
+  "lang": "en",
+  "scope": "/diet-workout-planner/"
+}
