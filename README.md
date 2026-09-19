@@ -8,6 +8,8 @@ A premium, responsive diet and workout planner built with vanilla HTML, CSS, and
 - Meal and workout planning with add/remove controls
 - Habit tracking with completion count and streak indicator
 - Weekly progress visualization
+- Weight trend and momentum insights
+- Recovery and consistency score cards
 - Light/dark theme toggle
 - Responsive layout for desktop, tablet, and mobile
 - Local storage persistence with reset controls

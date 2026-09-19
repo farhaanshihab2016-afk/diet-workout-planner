@@ -4,18 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#07131f" />
-  <title>FitFlow — Personal wellness planner</title>
-  <meta name="description" content="A premium personal diet, workout, hydration and habit planner." />
+  <title>FitFlow — Premium wellness planner</title>
+  <meta name="description" content="Advanced diet, workout, habit, and progress planner for a healthier lifestyle." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
   <div class="page-shell">
     <aside class="sidebar">
-      <div class="brand-box"><div class="brand-mark">F</div><div><p class="eyebrow">Wellness OS</p><h1>FitFlow</h1></div></div>
+      <div class="brand-box">
+        <div class="brand-mark">F</div>
+        <div>
+          <p class="eyebrow">Wellness OS</p>
+          <h1>FitFlow</h1>
+        </div>
+      </div>
+
       <nav class="nav" aria-label="Primary navigation">
         <button class="nav-item active" data-target="overview"><span>⌂</span> Overview</button>
         <button class="nav-item" data-target="planner"><span>▦</span> Planner</button>
@@ -23,39 +31,293 @@
         <button class="nav-item" data-target="workouts"><span>ϟ</span> Workouts</button>
         <button class="nav-item" data-target="progress"><span>↗</span> Progress</button>
       </nav>
-      <div class="sidebar-tip"><span class="tip-icon">✦</span><div><strong>Small steps, big change</strong><p>Consistency beats intensity. You’re building a lifestyle.</p></div></div>
+
+      <div class="sidebar-tip">
+        <span class="tip-icon">✦</span>
+        <div>
+          <strong>Small steps, big change</strong>
+          <p>Consistency beats intensity. You are building a more powerful life.</p>
+        </div>
+      </div>
+
       <div class="profile-panel">
-        <div class="panel-heading"><span>Profile</span><button id="resetDataBtn" class="tiny-btn">Reset</button></div>
+        <div class="panel-heading">
+          <span>Profile</span>
+          <button id="resetDataBtn" class="tiny-btn">Reset</button>
+        </div>
+
         <form id="profileForm" class="profile-form">
-          <label>Name<input type="text" id="userName" placeholder="Alex" /></label>
-          <label>Goal<select id="goalSelect"><option value="fat-loss">Fat Loss</option><option value="maintenance">Maintenance</option><option value="muscle-gain">Muscle Gain</option></select></label>
-          <div class="form-row"><label>Age<input type="number" id="age" min="15" max="80" value="28" /></label><label>Weight<input type="number" id="weight" min="30" max="200" value="72" step=".1" /></label></div>
-          <label>Height (cm)<input type="number" id="height" min="120" max="220" value="176" /></label>
-          <label>Activity<select id="activityLevel"><option value="1.2">Low</option><option value="1.375">Moderate</option><option value="1.55" selected>Active</option><option value="1.725">Very Active</option></select></label>
+          <label>
+            Name
+            <input type="text" id="userName" placeholder="Alex" />
+          </label>
+          <label>
+            Goal
+            <select id="goalSelect">
+              <option value="fat-loss">Fat Loss</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="muscle-gain">Muscle Gain</option>
+            </select>
+          </label>
+
+          <div class="form-row">
+            <label>
+              Age
+              <input type="number" id="age" min="15" max="80" value="28" />
+            </label>
+            <label>
+              Weight
+              <input type="number" id="weight" min="30" max="200" value="72" step="0.1" />
+            </label>
+          </div>
+
+          <label>
+            Height (cm)
+            <input type="number" id="height" min="120" max="220" value="176" />
+          </label>
+
+          <label>
+            Activity
+            <select id="activityLevel">
+              <option value="1.2">Low</option>
+              <option value="1.375">Moderate</option>
+              <option value="1.55" selected>Active</option>
+              <option value="1.725">Very Active</option>
+            </select>
+          </label>
+
           <button type="submit" class="primary-btn full">Save profile <span>→</span></button>
         </form>
       </div>
     </aside>
+
     <main class="content-area">
-      <header class="topbar" id="overview"><div><p class="eyebrow accent">Good morning, <span id="greetingName">Alex</span></p><h2 id="todayTitle">Your day, designed better.</h2><p class="subheading">A clear plan makes progress feel effortless.</p></div><div class="topbar-actions"><button class="icon-btn" id="themeBtn" aria-label="Toggle theme">☼</button><div class="pill"><span class="pulse"></span> Goal: <b id="goalLabel">Fat Loss</b></div><button class="primary-btn" id="quickAddBtn">＋ Add item</button></div></header>
+      <header class="topbar" id="overview">
+        <div>
+          <p class="eyebrow accent">Good morning, <span id="greetingName">Alex</span></p>
+          <h2 id="todayTitle">Your day, designed better.</h2>
+          <p class="subheading">A clear plan makes progress feel effortless.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">☼</button>
+          <div class="pill"><span class="pulse"></span> Goal: <b id="goalLabel">Fat Loss</b></div>
+          <button class="primary-btn" id="quickAddBtn">＋ Add item</button>
+        </div>
+      </header>
+
       <section class="stats-grid">
-        <article class="stat-card gradient-green"><div class="stat-icon">⌁</div><p>Daily calories</p><h3 id="calorieTarget">2200 kcal</h3><span id="calorieStatus">Deficit plan</span></article>
-        <article class="stat-card gradient-purple"><div class="stat-icon">◒</div><p>Protein target</p><h3 id="proteinTarget">145 g</h3><span id="proteinStatus">Lean muscle support</span></article>
-        <article class="stat-card gradient-orange"><div class="stat-icon">◌</div><p>Hydration</p><h3 id="waterTarget">2.2 L</h3><span id="waterStatus">Hydration focus</span></article>
-        <article class="stat-card gradient-blue"><div class="stat-icon">ϟ</div><p>Workout volume</p><h3 id="workoutTarget">125 min</h3><span id="workoutStatus">Cardio + strength</span></article>
+        <article class="stat-card gradient-green">
+          <div class="stat-icon">⌁</div>
+          <p>Daily calories</p>
+          <h3 id="calorieTarget">2200 kcal</h3>
+          <span id="calorieStatus">Deficit plan</span>
+        </article>
+
+        <article class="stat-card gradient-purple">
+          <div class="stat-icon">◒</div>
+          <p>Protein target</p>
+          <h3 id="proteinTarget">145 g</h3>
+          <span id="proteinStatus">Lean muscle support</span>
+        </article>
+
+        <article class="stat-card gradient-orange">
+          <div class="stat-icon">◌</div>
+          <p>Hydration</p>
+          <h3 id="waterTarget">2.2 L</h3>
+          <span id="waterStatus">Hydration focus</span>
+        </article>
+
+        <article class="stat-card gradient-blue">
+          <div class="stat-icon">ϟ</div>
+          <p>Workout volume</p>
+          <h3 id="workoutTarget">125 min</h3>
+          <span id="workoutStatus">Cardio + strength</span>
+        </article>
       </section>
+
       <section class="main-grid">
-        <div class="panel" id="planner"><div class="panel-heading"><div><p class="section-kicker">Fuel your day</p><span>Meal planner</span></div><button class="tiny-btn" id="addMealBtn">＋ Meal</button></div><div id="mealList" class="meal-list"></div></div>
-        <div class="panel" id="nutrition"><div class="panel-heading"><div><p class="section-kicker">Today’s balance</p><span>Macro breakdown</span></div></div><div class="macro-card"><div class="macro-row"><div><span class="swatch protein"></span>Protein</div><strong id="macroProtein">145g</strong></div><div class="macro-row"><div><span class="swatch carbs"></span>Carbs</div><strong id="macroCarbs">180g</strong></div><div class="macro-row"><div><span class="swatch fat"></span>Fat</div><strong id="macroFat">55g</strong></div><div class="ring-wrap"><div class="ring"><svg viewBox="0 0 100 100"><defs><linearGradient id="ringGradient" x1="0%" x2="100%"><stop offset="0%" stop-color="#69e0a5"/><stop offset="100%" stop-color="#8f7cf6"/></linearGradient></defs><circle cx="50" cy="50" r="38"></circle><circle cx="50" cy="50" r="38" class="progress-ring" id="macroRing"></circle></svg><div class="ring-center"><strong id="ringPercent">78%</strong><small>goal hit</small></div></div></div></div></div>
-        <div class="panel wide" id="workouts"><div class="panel-heading"><div><p class="section-kicker">Move with intention</p><span>Workout schedule</span></div><button class="tiny-btn" id="addWorkoutBtn">＋ Workout</button></div><div id="workoutList" class="workout-list"></div></div>
-        <div class="panel progress-panel" id="progress"><div class="panel-heading"><div><p class="section-kicker">Keep showing up</p><span>Weekly progress</span></div><span class="streak-badge">🔥 <b id="streakValue">4</b> day streak</span></div><div class="chart" id="progressChart"></div><div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div>
-        <div class="panel" id="habits"><div class="panel-heading"><div><p class="section-kicker">Daily wins</p><span>Habits</span></div><span class="completion" id="habitCompletion">0/4</span></div><div id="habitList" class="habit-list"></div><button class="add-habit" id="addHabitBtn">＋ Add custom habit</button></div>
+        <div class="panel" id="planner">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Fuel your day</p>
+              <span>Meal planner</span>
+            </div>
+            <button class="tiny-btn" id="addMealBtn">＋ Meal</button>
+          </div>
+          <div id="mealList" class="meal-list"></div>
+        </div>
+
+        <div class="panel" id="nutrition">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Today’s balance</p>
+              <span>Macro breakdown</span>
+            </div>
+          </div>
+
+          <div class="macro-card">
+            <div class="macro-row">
+              <div><span class="swatch protein"></span>Protein</div>
+              <strong id="macroProtein">145g</strong>
+            </div>
+            <div class="macro-row">
+              <div><span class="swatch carbs"></span>Carbs</div>
+              <strong id="macroCarbs">180g</strong>
+            </div>
+            <div class="macro-row">
+              <div><span class="swatch fat"></span>Fat</div>
+              <strong id="macroFat">55g</strong>
+            </div>
+
+            <div class="ring-wrap">
+              <div class="ring">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="ringGradient" x1="0%" x2="100%">
+                      <stop offset="0%" stop-color="#69e0a5" />
+                      <stop offset="100%" stop-color="#8f7cf6" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="50" cy="50" r="38"></circle>
+                  <circle cx="50" cy="50" r="38" class="progress-ring" id="macroRing"></circle>
+                </svg>
+                <div class="ring-center">
+                  <strong id="ringPercent">78%</strong>
+                  <small>goal hit</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel wide" id="workouts">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Move with intention</p>
+              <span>Workout schedule</span>
+            </div>
+            <button class="tiny-btn" id="addWorkoutBtn">＋ Workout</button>
+          </div>
+          <div id="workoutList" class="workout-list"></div>
+        </div>
+
+        <div class="panel progress-panel" id="progress">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Keep showing up</p>
+              <span>Weekly progress</span>
+            </div>
+            <span class="streak-badge">🔥 <b id="streakValue">4</b> day streak</span>
+          </div>
+          <div class="chart" id="progressChart"></div>
+          <div class="chart-labels">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+        </div>
+
+        <div class="panel" id="habits">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Daily wins</p>
+              <span>Habits</span>
+            </div>
+            <span class="completion" id="habitCompletion">0/4</span>
+          </div>
+          <div id="habitList" class="habit-list"></div>
+          <button class="add-habit" id="addHabitBtn">＋ Add custom habit</button>
+        </div>
+
+        <div class="panel wide insights-panel" id="insights">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Performance snapshot</p>
+              <span>Recovery & momentum</span>
+            </div>
+          </div>
+
+          <div class="score-strip">
+            <div class="mini-score">
+              <span>Recovery</span>
+              <strong id="recoveryScore">87%</strong>
+            </div>
+            <div class="mini-score">
+              <span>Hydration</span>
+              <strong id="hydrationScore">92%</strong>
+            </div>
+            <div class="mini-score">
+              <span>Sleep</span>
+              <strong id="sleepScore">76%</strong>
+            </div>
+            <div class="mini-score">
+              <span>Consistency</span>
+              <strong id="consistencyScore">84%</strong>
+            </div>
+          </div>
+
+          <div class="insights-grid">
+            <div class="weight-card">
+              <div class="panel-heading small">
+                <span>Weight trend</span>
+              </div>
+              <div id="weightChart" class="weight-chart"></div>
+            </div>
+
+            <div class="week-card">
+              <div class="panel-heading small">
+                <span>Week board</span>
+              </div>
+              <div id="weekGrid" class="week-grid"></div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
-  <template id="mealTemplate"><article class="meal-item card-item"><div class="meal-header"><div><p class="meal-label">Meal</p><h4 class="meal-name"></h4></div><button class="delete-btn" title="Delete meal">×</button></div><ul class="meal-details"></ul></article></template>
-  <template id="workoutTemplate"><article class="workout-item card-item"><div class="workout-header"><div><p class="workout-day"></p><h4 class="workout-name"></h4></div><button class="delete-btn" title="Delete workout">×</button></div><div class="workout-meta"><span class="workout-time"></span><span class="workout-focus"></span></div></article></template>
-  <template id="habitTemplate"><label class="habit-item"><input type="checkbox" /><span class="habit-check">✓</span><span class="habit-text"></span></label></template>
+
+  <template id="mealTemplate">
+    <article class="meal-item card-item">
+      <div class="meal-header">
+        <div>
+          <p class="meal-label">Meal</p>
+          <h4 class="meal-name"></h4>
+        </div>
+        <button class="delete-btn" title="Delete meal">×</button>
+      </div>
+      <ul class="meal-details"></ul>
+    </article>
+  </template>
+
+  <template id="workoutTemplate">
+    <article class="workout-item card-item">
+      <div class="workout-header">
+        <div>
+          <p class="workout-day"></p>
+          <h4 class="workout-name"></h4>
+        </div>
+        <button class="delete-btn" title="Delete workout">×</button>
+      </div>
+      <div class="workout-meta">
+        <span class="workout-time"></span>
+        <span class="workout-focus"></span>
+      </div>
+    </article>
+  </template>
+
+  <template id="habitTemplate">
+    <label class="habit-item">
+      <input type="checkbox" />
+      <span class="habit-check">✓</span>
+      <span class="habit-text"></span>
+    </label>
+  </template>
+
   <div id="toast" class="toast" role="status"></div>
   <script src="script.js"></script>
 </body>

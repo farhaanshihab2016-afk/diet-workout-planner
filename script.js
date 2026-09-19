@@ -1,7 +1,399 @@
-const defaults={profile:{name:'Alex',goal:'fat-loss',age:28,weight:72,height:176,activity:1.55},meals:[{name:'Breakfast',items:['Oats with Greek yogurt','Blueberries','Almonds','Protein shake']},{name:'Lunch',items:['Grilled chicken breast','Brown rice','Roasted vegetables','Avocado']},{name:'Dinner',items:['Salmon fillet','Sweet potato','Green salad','Olive oil dressing']},{name:'Snack',items:['Cottage cheese','Apple','Peanut butter']}],workouts:[{day:'Monday',name:'Upper body strength',time:'45 min',focus:'Push + pull'},{day:'Wednesday',name:'HIIT cardio',time:'30 min',focus:'Intervals'},{day:'Friday',name:'Leg day',time:'50 min',focus:'Compound lifts'}],habits:[{text:'Drink 2L water',checked:true},{text:'Sleep 8 hours',checked:false},{text:'Stretch 10 minutes',checked:true},{text:'Track meals',checked:false}],theme:'dark'};const KEY='fitflowPlannerState';const clone=o=>JSON.parse(JSON.stringify(o));let state=load();const $=id=>document.getElementById(id);const toast=(message)=>{const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),2400)};
-function load(){try{const saved=JSON.parse(localStorage.getItem(KEY));return saved?{...clone(defaults),...saved,profile:{...defaults.profile,...saved.profile}}:clone(defaults)}catch{return clone(defaults)}}function save(){localStorage.setItem(KEY,JSON.stringify(state))}function init(){bind();fillProfile();render();updateDate();document.body.classList.toggle('light',state.theme==='light')}
-function bind(){$('profileForm').addEventListener('submit',e=>{e.preventDefault();state.profile={name:$('userName').value||'Alex',goal:$('goalSelect').value,age:+$('age').value||28,weight:+$('weight').value||72,height:+$('height').value||176,activity:+$('activityLevel').value||1.55};save();render();toast('Profile updated ✦')});$('addMealBtn').onclick=addMeal;$('addWorkoutBtn').onclick=addWorkout;$('quickAddBtn').onclick=()=>confirm('Add a new meal? Choose Cancel to add a workout.')?addMeal():addWorkout();$('addHabitBtn').onclick=()=>{const text=prompt('What habit would you like to track?','Read for 10 minutes');if(text){state.habits.push({text,checked:false});save();renderHabits();toast('Habit added')}};$('themeBtn').onclick=()=>{state.theme=state.theme==='light'?'dark':'light';document.body.classList.toggle('light',state.theme==='light');save()};$('resetDataBtn').onclick=()=>{if(confirm('Reset all planner data?')){state=Object.assign(state,clone(defaults));save();fillProfile();render();toast('Planner reset')}};document.querySelectorAll('.nav-item').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');$(btn.dataset.target).scrollIntoView({behavior:'smooth',block:'start'})})}
-function fillProfile(){const p=state.profile;$('userName').value=p.name;$('goalSelect').value=p.goal;$('age').value=p.age;$('weight').value=p.weight;$('height').value=p.height;$('activityLevel').value=p.activity}
-function render(){renderSummary();renderMeals();renderWorkouts();renderHabits();renderChart()}function updateDate(){const now=new Date();$('todayTitle').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric'}).format(now)}function calories(){const p=state.profile;let base=(10*p.weight+6.25*p.height-5*p.age+5)*p.activity;return Math.round(base+(p.goal==='fat-loss'?-400:p.goal==='muscle-gain'?250:0))}function goalName(g){return {'fat-loss':'Fat Loss','muscle-gain':'Muscle Gain',maintenance:'Maintenance'}[g]||'Balanced'}function renderSummary(){const c=calories(),p=Math.round(c*.28/4),carbs=Math.round(c*.42/4),fat=Math.round(c*.3/9);$('greetingName').textContent=state.profile.name;$('goalLabel').textContent=goalName(state.profile.goal);$('calorieTarget').textContent=`${c} kcal`;$('proteinTarget').textContent=`${p} g`;$('waterTarget').textContent=`${state.profile.goal==='muscle-gain'?'2.8':'2.2'} L`;$('workoutTarget').textContent=`${state.workouts.reduce((sum,w)=>sum+minutes(w.time),0)} min`;const labels=state.profile.goal==='fat-loss'?['Deficit plan','Lean muscle support','Hydration focus','Cardio + strength']:state.profile.goal==='muscle-gain'?['Clean surplus','High recovery','Performance fuel','Strength focus']:['Balanced','Steady energy','Daily hydration','Mobility + strength'];[$('calorieStatus'),$('proteinStatus'),$('waterStatus'),$('workoutStatus')].forEach((el,i)=>el.textContent=labels[i]);$('macroProtein').textContent=`${p}g`;$('macroCarbs').textContent=`${carbs}g`;$('macroFat').textContent=`${fat}g`;const percent=Math.min(100,Math.round((p+carbs+fat)/360*100));$('ringPercent').textContent=`${percent}%`;const circumference=2*Math.PI*38;$('macroRing').style.strokeDasharray=circumference;$('macroRing').style.strokeDashoffset=circumference-percent/100*circumference}
-function renderMeals(){$('mealList').innerHTML='';state.meals.forEach((meal,i)=>{const el=document.getElementById('mealTemplate').content.cloneNode(true);el.querySelector('.meal-name').textContent=meal.name;meal.items.forEach(item=>{const li=document.createElement('li');li.textContent=item;el.querySelector('.meal-details').append(li)});el.querySelector('.delete-btn').onclick=()=>{state.meals.splice(i,1);save();renderMeals();toast('Meal removed')};$('mealList').append(el)})}function renderWorkouts(){$('workoutList').innerHTML='';state.workouts.forEach((w,i)=>{const el=document.getElementById('workoutTemplate').content.cloneNode(true);el.querySelector('.workout-day').textContent=w.day;el.querySelector('.workout-name').textContent=w.name;el.querySelector('.workout-time').textContent=w.time;el.querySelector('.workout-focus').textContent=w.focus;el.querySelector('.delete-btn').onclick=()=>{state.workouts.splice(i,1);save();renderWorkouts();renderSummary();toast('Workout removed')};$('workoutList').append(el)})}function renderHabits(){$('habitList').innerHTML='';let complete=0;state.habits.forEach((h,i)=>{if(h.checked)complete++;const el=document.getElementById('habitTemplate').content.cloneNode(true),label=el.querySelector('.habit-item'),input=el.querySelector('input');el.querySelector('.habit-text').textContent=h.text;input.checked=h.checked;if(h.checked)label.classList.add('checked');input.onchange=e=>{state.habits[i].checked=e.target.checked;save();renderHabits();renderChart()};$('habitList').append(el)});$('habitCompletion').textContent=`${complete}/${state.habits.length}`;$('streakValue').textContent=Math.max(1,complete+2)}function renderChart(){const data=[58,74,45,88,68,94,Math.min(100,55+state.habits.filter(h=>h.checked).length*10)];$('progressChart').innerHTML=data.map((height,i)=>`<div class="bar ${i===6?'today':''}" style="--height:${height}%" title="${height}% complete"></div>`).join('')}
-function addMeal(){const name=prompt('Meal name:','Lunch');if(!name)return;const raw=prompt('Ingredients separated by commas:','Chicken, rice, vegetables');if(!raw)return;state.meals.push({name,items:raw.split(',').map(x=>x.trim()).filter(Boolean)});save();renderMeals();toast('Meal added ✦')}function addWorkout(){const day=prompt('Workout day:','Tuesday');if(!day)return;const name=prompt('Workout name:','Full body circuit');if(!name)return;const time=prompt('Duration:','35 min');if(!time)return;const focus=prompt('Focus:','Strength + conditioning');if(!focus)return;state.workouts.push({day,name,time,focus});save();renderWorkouts();renderSummary();toast('Workout added ✦')}function minutes(value){const m=String(value).match(/\d+/);return m?+m[0]:0}init();window.addEventListener('beforeunload',save);
+const defaults = {
+  profile: {
+    name: "Alex",
+    goal: "fat-loss",
+    age: 28,
+    weight: 72,
+    height: 176,
+    activity: 1.55,
+  },
+  meals: [
+    { name: "Breakfast", items: ["Oats with Greek yogurt", "Blueberries", "Almonds", "Protein shake"], calories: 430, protein: 34, carbs: 42, fat: 13 },
+    { name: "Lunch", items: ["Grilled chicken breast", "Brown rice", "Roasted vegetables", "Avocado"], calories: 560, protein: 42, carbs: 46, fat: 19 },
+    { name: "Dinner", items: ["Salmon fillet", "Sweet potato", "Green salad", "Olive oil dressing"], calories: 610, protein: 38, carbs: 41, fat: 27 },
+    { name: "Snack", items: ["Cottage cheese", "Apple", "Peanut butter"], calories: 280, protein: 22, carbs: 25, fat: 9 },
+  ],
+  workouts: [
+    { day: "Mon", name: "Upper body strength", time: "45 min", focus: "Push + pull" },
+    { day: "Wed", name: "HIIT cardio", time: "30 min", focus: "Intervals" },
+    { day: "Fri", name: "Leg day", time: "50 min", focus: "Compound lifts" },
+  ],
+  habits: [
+    { text: "Drink 2L water", checked: true },
+    { text: "Sleep 8 hours", checked: false },
+    { text: "Stretch 10 minutes", checked: true },
+    { text: "Track meals", checked: false },
+  ],
+  weightLog: [72, 71.8, 72.1, 71.7, 71.5, 71.4, 71.2],
+  theme: "dark",
+};
+
+const KEY = "fitflowPlannerState";
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const $ = (id) => document.getElementById(id);
+
+let state = loadState();
+
+const toast = (message) => {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+};
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    if (!saved) return clone(defaults);
+    return {
+      ...clone(defaults),
+      ...saved,
+      profile: { ...defaults.profile, ...saved.profile },
+      meals: saved.meals || clone(defaults.meals),
+      workouts: saved.workouts || clone(defaults.workouts),
+      habits: saved.habits || clone(defaults.habits),
+      weightLog: saved.weightLog || clone(defaults.weightLog),
+    };
+  } catch {
+    return clone(defaults);
+  }
+}
+
+function saveState() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+function init() {
+  bindEvents();
+  fillProfile();
+  render();
+  updateDate();
+  document.body.classList.toggle("light", state.theme === "light");
+}
+
+function bindEvents() {
+  $("profileForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    state.profile = {
+      name: $("userName").value || "Alex",
+      goal: $("goalSelect").value,
+      age: Number($("age").value || 28),
+      weight: Number($("weight").value || 72),
+      height: Number($("height").value || 176),
+      activity: Number($("activityLevel").value || 1.55),
+    };
+    saveState();
+    render();
+    toast("Profile updated ✦");
+  });
+
+  $("addMealBtn").onclick = addMeal;
+  $("addWorkoutBtn").onclick = addWorkout;
+  $("quickAddBtn").onclick = () => {
+    const addMealMode = window.confirm("Add a meal? Choose Cancel to add a workout.");
+    if (addMealMode) addMeal();
+    else addWorkout();
+  };
+
+  $("addHabitBtn").onclick = () => {
+    const text = window.prompt("What habit would you like to track?", "Read for 10 minutes");
+    if (!text) return;
+    state.habits.push({ text, checked: false });
+    saveState();
+    renderHabits();
+    toast("Habit added");
+  };
+
+  $("themeBtn").onclick = () => {
+    state.theme = state.theme === "light" ? "dark" : "light";
+    document.body.classList.toggle("light", state.theme === "light");
+    saveState();
+  };
+
+  $("resetDataBtn").onclick = () => {
+    if (window.confirm("Reset all planner data?")) {
+      state = clone(defaults);
+      saveState();
+      fillProfile();
+      render();
+      toast("Planner reset");
+    }
+  };
+
+  document.querySelectorAll(".nav-item").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      const target = $(button.dataset.target);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
+
+function fillProfile() {
+  const profile = state.profile;
+  $("userName").value = profile.name;
+  $("goalSelect").value = profile.goal;
+  $("age").value = profile.age;
+  $("weight").value = profile.weight;
+  $("height").value = profile.height;
+  $("activityLevel").value = String(profile.activity);
+}
+
+function render() {
+  renderSummary();
+  renderMeals();
+  renderWorkouts();
+  renderHabits();
+  renderChart();
+  renderInsights();
+}
+
+function updateDate() {
+  const now = new Date();
+  $("todayTitle").textContent = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(now);
+}
+
+function goalName(goal) {
+  return {
+    "fat-loss": "Fat Loss",
+    maintenance: "Maintenance",
+    "muscle-gain": "Muscle Gain",
+  }[goal] || "Balanced";
+}
+
+function caloriesForGoal() {
+  const { weight, height, age, activity, goal } = state.profile;
+  let base = (10 * weight + 6.25 * height - 5 * age + 5) * activity;
+  if (goal === "fat-loss") return Math.round(base - 400);
+  if (goal === "muscle-gain") return Math.round(base + 250);
+  return Math.round(base);
+}
+
+function minutes(value) {
+  const match = String(value).match(/\d+/);
+  return match ? Number(match[0]) : 0;
+}
+
+function renderSummary() {
+  const c = caloriesForGoal();
+  const p = Math.round((c * 0.28) / 4);
+  const carbs = Math.round((c * 0.42) / 4);
+  const fat = Math.round((c * 0.3) / 9);
+  const weeklyWorkout = state.workouts.reduce((sum, workout) => sum + minutes(workout.time), 0);
+
+  $("greetingName").textContent = state.profile.name;
+  $("goalLabel").textContent = goalName(state.profile.goal);
+  $("calorieTarget").textContent = `${c} kcal`;
+  $("proteinTarget").textContent = `${p} g`;
+  $("waterTarget").textContent = `${state.profile.goal === "muscle-gain" ? "2.8" : "2.2"} L`;
+  $("workoutTarget").textContent = `${weeklyWorkout} min`;
+
+  const labels = state.profile.goal === "fat-loss"
+    ? ["Deficit plan", "Lean muscle support", "Hydration focus", "Cardio + strength"]
+    : state.profile.goal === "muscle-gain"
+      ? ["Clean surplus", "High recovery", "Performance fuel", "Strength focus"]
+      : ["Balanced", "Steady energy", "Daily hydration", "Mobility + strength"];
+
+  $("calorieStatus").textContent = labels[0];
+  $("proteinStatus").textContent = labels[1];
+  $("waterStatus").textContent = labels[2];
+  $("workoutStatus").textContent = labels[3];
+
+  $("macroProtein").textContent = `${p}g`;
+  $("macroCarbs").textContent = `${carbs}g`;
+  $("macroFat").textContent = `${fat}g`;
+
+  const percent = Math.min(100, Math.round((p + carbs + fat) / 360 * 100));
+  $("ringPercent").textContent = `${percent}%`;
+  const circumference = 2 * Math.PI * 38;
+  $("macroRing").style.strokeDasharray = String(circumference);
+  $("macroRing").style.strokeDashoffset = String(circumference - (percent / 100) * circumference);
+}
+
+function renderMeals() {
+  const list = $("mealList");
+  list.innerHTML = "";
+
+  state.meals.forEach((meal, index) => {
+    const template = $("mealTemplate").content.cloneNode(true);
+    template.querySelector(".meal-name").textContent = meal.name;
+
+    const details = template.querySelector(".meal-details");
+    meal.items.forEach((item) => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      details.appendChild(li);
+    });
+
+    template.querySelector(".delete-btn").addEventListener("click", () => {
+      state.meals.splice(index, 1);
+      saveState();
+      renderMeals();
+      toast("Meal removed");
+    });
+
+    list.appendChild(template);
+  });
+}
+
+function renderWorkouts() {
+  const list = $("workoutList");
+  list.innerHTML = "";
+
+  state.workouts.forEach((workout, index) => {
+    const template = $("workoutTemplate").content.cloneNode(true);
+    template.querySelector(".workout-day").textContent = workout.day;
+    template.querySelector(".workout-name").textContent = workout.name;
+    template.querySelector(".workout-time").textContent = workout.time;
+    template.querySelector(".workout-focus").textContent = workout.focus;
+
+    template.querySelector(".delete-btn").addEventListener("click", () => {
+      state.workouts.splice(index, 1);
+      saveState();
+      renderWorkouts();
+      renderSummary();
+      toast("Workout removed");
+    });
+
+    list.appendChild(template);
+  });
+}
+
+function renderHabits() {
+  const list = $("habitList");
+  list.innerHTML = "";
+  let complete = 0;
+
+  state.habits.forEach((habit, index) => {
+    const template = $("habitTemplate").content.cloneNode(true);
+    const label = template.querySelector(".habit-item");
+    const input = template.querySelector("input");
+    const text = template.querySelector(".habit-text");
+
+    text.textContent = habit.text;
+    input.checked = habit.checked;
+    if (habit.checked) {
+      label.classList.add("checked");
+      complete += 1;
+    }
+
+    input.addEventListener("change", (event) => {
+      state.habits[index].checked = event.target.checked;
+      saveState();
+      renderHabits();
+      renderChart();
+    });
+
+    list.appendChild(template);
+  });
+
+  $("habitCompletion").textContent = `${complete}/${state.habits.length}`;
+  $("streakValue").textContent = String(Math.max(1, complete + 2));
+}
+
+function renderChart() {
+  const completed = state.habits.filter((habit) => habit.checked).length;
+  const data = [58, 74, 45, 88, 68, 94, Math.min(100, 55 + completed * 10)];
+  const chart = $("progressChart");
+  chart.innerHTML = data
+    .map((height, index) => `<div class="bar ${index === 6 ? "today" : ""}" style="--height:${height}%"></div>`)
+    .join("");
+}
+
+function renderInsights() {
+  const completedHabits = state.habits.filter((habit) => habit.checked).length;
+  const recovery = 75 + completedHabits * 5;
+  const hydration = Math.min(100, 70 + Math.round((completedHabits / state.habits.length) * 30));
+  const sleep = 72 + (state.profile.goal === "maintenance" ? 12 : 8);
+  const consistency = Math.min(100, 60 + completedHabits * 8);
+
+  $("recoveryScore").textContent = `${recovery}%`;
+  $("hydrationScore").textContent = `${hydration}%`;
+  $("sleepScore").textContent = `${sleep}%`;
+  $("consistencyScore").textContent = `${consistency}%`;
+
+  const chart = $("weightChart");
+  const max = Math.max(...state.weightLog, ...[state.profile.weight]);
+  const min = Math.min(...state.weightLog, ...[state.profile.weight]);
+  const step = Math.max(6, (max - min) * 14 || 22);
+
+  chart.innerHTML = state.weightLog
+    .slice(-7)
+    .map((value, index) => {
+      const height = Math.max(18, ((value - min) / (max - min || 1)) * 100 + 20);
+      const todayClass = index === state.weightLog.length - 1 ? "today-item" : "";
+      return `<div class="weight-bar ${todayClass}" style="height:${height}%"></div>`;
+    })
+    .join("");
+
+  const weekGrid = $("weekGrid");
+  const weekData = [
+    { label: "Calories", value: `${state.meals.reduce((sum, meal) => sum + (meal.calories || 0), 0)} kcal` },
+    { label: "Protein", value: `${state.meals.reduce((sum, meal) => sum + (meal.protein || 0), 0)} g` },
+    { label: "Workouts", value: `${state.workouts.length} / 3` },
+    { label: "Hydrate", value: `${state.habits[0].checked ? 'Done' : 'Pending'}` },
+    { label: "Sleep", value: `${state.habits[1].checked ? 'Good' : 'Low'}` },
+    { label: "Streak", value: `${Math.max(1, completedHabits + 2)}d` },
+  ];
+
+  weekGrid.innerHTML = weekData
+    .map((item) => `<div class="week-cell"><span>${item.label}</span><strong>${item.value}</strong></div>`)
+    .join("");
+}
+
+function addMeal() {
+  const name = window.prompt("Meal name:", "Lunch");
+  if (!name) return;
+
+  const rawItems = window.prompt("Ingredients separated by commas:", "Chicken, rice, vegetables");
+  if (!rawItems) return;
+
+  const calories = Number(window.prompt("Calories:", "520") || 0);
+  const protein = Number(window.prompt("Protein (g):", "35") || 0);
+  const carbs = Number(window.prompt("Carbs (g):", "40") || 0);
+  const fat = Number(window.prompt("Fat (g):", "18") || 0);
+
+  state.meals.push({
+    name,
+    items: rawItems.split(",").map((item) => item.trim()).filter(Boolean),
+    calories,
+    protein,
+    carbs,
+    fat,
+  });
+
+  saveState();
+  renderMeals();
+  renderInsights();
+  toast("Meal added ✦");
+}
+
+function addWorkout() {
+  const day = window.prompt("Workout day:", "Tuesday");
+  if (!day) return;
+
+  const name = window.prompt("Workout name:", "Full body circuit");
+  if (!name) return;
+
+  const time = window.prompt("Duration:", "35 min");
+  if (!time) return;
+
+  const focus = window.prompt("Focus:", "Strength + conditioning");
+  if (!focus) return;
+
+  state.workouts.push({ day, name, time, focus });
+  saveState();
+  renderWorkouts();
+  renderSummary();
+  toast("Workout added ✦");
+}
+
+window.addEventListener("beforeunload", saveState);
+init();
+
