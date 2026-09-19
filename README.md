@@ -1,21 +1,21 @@
-# FitFlow Planner
+# FitFlow Pro
 
-A premium, responsive diet and workout planner built with vanilla HTML, CSS, and JavaScript.
+A premium full-version plan app built with vanilla HTML, CSS, and JavaScript.
 
 ## Features
 
-- Personalized calorie, protein, hydration, and workout targets
-- Meal and workout planning with add/remove controls
-- Habit tracking with completion count and streak indicator
-- Weekly progress visualization
-- Weight trend and momentum insights
-- Recovery and consistency score cards
-- Light/dark theme toggle
-- Responsive layout for desktop, tablet, and mobile
-- Local storage persistence with reset controls
+- Personal profile and goal-based calorie planning
+- Meal planner with calories, protein, carbs, and fat tracking
+- Workout planner with duration and focus tracking
+- Habit tracker with completion and streak updates
+- Weekly progress chart and performance snapshot
+- Weight trend and weekly momentum panels
+- Light/dark mode
+- Fully responsive dashboard
+- Local storage persistence
 
 ## Run locally
 
-Open `index.html` in a browser. No build step or dependencies are required.
+Open `index.html` in your browser. No build step is required.
 
-> The calorie planner is an educational estimate and is not medical advice. Consult a qualified professional for personalized nutrition guidance.
+> This app is for educational planning and wellness tracking. It is not medical advice.

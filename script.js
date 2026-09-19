@@ -28,7 +28,7 @@ const defaults = {
   theme: "dark",
 };
 
-const KEY = "fitflowPlannerState";
+const STORAGE_KEY = "fitflowProState";
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const $ = (id) => document.getElementById(id);
 
@@ -44,7 +44,7 @@ const toast = (message) => {
 
 function loadState() {
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY));
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved) return clone(defaults);
     return {
       ...clone(defaults),
@@ -61,15 +61,7 @@ function loadState() {
 }
 
 function saveState() {
-  localStorage.setItem(KEY, JSON.stringify(state));
-}
-
-function init() {
-  bindEvents();
-  fillProfile();
-  render();
-  updateDate();
-  document.body.classList.toggle("light", state.theme === "light");
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function bindEvents() {
@@ -209,7 +201,7 @@ function renderSummary() {
   $("macroCarbs").textContent = `${carbs}g`;
   $("macroFat").textContent = `${fat}g`;
 
-  const percent = Math.min(100, Math.round((p + carbs + fat) / 360 * 100));
+  const percent = Math.min(100, Math.round(((p + carbs + fat) / 360) * 100));
   $("ringPercent").textContent = `${percent}%`;
   const circumference = 2 * Math.PI * 38;
   $("macroRing").style.strokeDasharray = String(circumference);
@@ -235,6 +227,7 @@ function renderMeals() {
       state.meals.splice(index, 1);
       saveState();
       renderMeals();
+      renderInsights();
       toast("Meal removed");
     });
 
@@ -258,6 +251,7 @@ function renderWorkouts() {
       saveState();
       renderWorkouts();
       renderSummary();
+      renderInsights();
       toast("Workout removed");
     });
 
@@ -288,6 +282,7 @@ function renderHabits() {
       saveState();
       renderHabits();
       renderChart();
+      renderInsights();
     });
 
     list.appendChild(template);
@@ -321,24 +316,24 @@ function renderInsights() {
   const chart = $("weightChart");
   const max = Math.max(...state.weightLog, ...[state.profile.weight]);
   const min = Math.min(...state.weightLog, ...[state.profile.weight]);
-  const step = Math.max(6, (max - min) * 14 || 22);
-
   chart.innerHTML = state.weightLog
     .slice(-7)
-    .map((value, index) => {
+    .map((value) => {
       const height = Math.max(18, ((value - min) / (max - min || 1)) * 100 + 20);
-      const todayClass = index === state.weightLog.length - 1 ? "today-item" : "";
-      return `<div class="weight-bar ${todayClass}" style="height:${height}%"></div>`;
+      return `<div class="weight-bar" style="height:${height}%"></div>`;
     })
     .join("");
 
   const weekGrid = $("weekGrid");
+  const totalCalories = state.meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
+  const totalProtein = state.meals.reduce((sum, meal) => sum + (meal.protein || 0), 0);
+
   const weekData = [
-    { label: "Calories", value: `${state.meals.reduce((sum, meal) => sum + (meal.calories || 0), 0)} kcal` },
-    { label: "Protein", value: `${state.meals.reduce((sum, meal) => sum + (meal.protein || 0), 0)} g` },
+    { label: "Calories", value: `${totalCalories} kcal` },
+    { label: "Protein", value: `${totalProtein} g` },
     { label: "Workouts", value: `${state.workouts.length} / 3` },
-    { label: "Hydrate", value: `${state.habits[0].checked ? 'Done' : 'Pending'}` },
-    { label: "Sleep", value: `${state.habits[1].checked ? 'Good' : 'Low'}` },
+    { label: "Hydrate", value: `${state.habits[0].checked ? "Done" : "Pending"}` },
+    { label: "Sleep", value: `${state.habits[1].checked ? "Good" : "Low"}` },
     { label: "Streak", value: `${Math.max(1, completedHabits + 2)}d` },
   ];
 
@@ -391,9 +386,14 @@ function addWorkout() {
   saveState();
   renderWorkouts();
   renderSummary();
+  renderInsights();
   toast("Workout added ✦");
 }
 
 window.addEventListener("beforeunload", saveState);
-init();
 
+bindEvents();
+fillProfile();
+render();
+updateDate();
+document.body.classList.toggle("light", state.theme === "light");
